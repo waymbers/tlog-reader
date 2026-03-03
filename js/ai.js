@@ -11,6 +11,12 @@ const FlightAI = (() => {
   const API_URL = 'https://api.openai.com/v1/chat/completions';
   const MODEL   = 'gpt-4o-mini';
 
+  // Maximum number of events / mode-changes included per flight summary.
+  // Keeps the API payload well under the model's 128,000-token context limit
+  // even for very long or event-heavy logs.
+  const MAX_CRITICAL_EVENTS = 20;
+  const MAX_MODE_CHANGES    = 10;
+
   /**
    * Returns the stored API key or null.
    */
@@ -47,6 +53,7 @@ const FlightAI = (() => {
       modesUsed: report.modes.map((m) => m.mode),
       criticalEvents: report.events
         .filter((e) => e.type === 'STATUS' || e.type === 'ARM' || e.type === 'DISARM')
+        .slice(0, MAX_CRITICAL_EVENTS)
         .map((e) => ({
           type: e.type,
           text: e.text,
@@ -54,6 +61,7 @@ const FlightAI = (() => {
         })),
       modeChanges: report.events
         .filter((e) => e.type === 'MODE')
+        .slice(0, MAX_MODE_CHANGES)
         .map((e) => e.text),
     };
   }
