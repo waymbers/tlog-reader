@@ -256,7 +256,7 @@ const TLogParser = (() => {
     if (altM > result.maxAltitudeM) {
       result.maxAltitudeM = altM;
     }
-    // Sample altitude history for chart (every 20th reading to limit size)
+    // Sample altitude history for chart (at most once per second to limit size)
     if (result.altHistory.length === 0 ||
         tsMs - result.altHistory[result.altHistory.length - 1].time >= 1000) {
       result.altHistory.push({ time: tsMs, alt: Math.max(0, altM) });

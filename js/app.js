@@ -356,14 +356,17 @@
             </div>
             <p class="text-xs text-gray-500 mb-3">Chronological list of all STATUSTEXT, mode changes, and arm/disarm events parsed from the log.</p>
             <div class="space-y-0 raw-event-list">
-              ${(report.rawEvents.length > 0 ? report.rawEvents : report.events).map((e) => {
-                const sevClass = e.severity !== undefined ? `severity-${(e.severityLabel || '').toLowerCase()}` : '';
-                const typeColor = e.type === 'ARM' ? 'text-green-400' : e.type === 'DISARM' ? 'text-red-400' : e.type === 'MODE' ? 'text-indigo-400' : '';
-                return `<div class="event-item">
-                  <div class="text-xs ${typeColor || 'text-gray-500'}">${e.type}${e.severityLabel ? ' · ' + e.severityLabel : ''}</div>
-                  <div class="text-sm ${sevClass || 'text-gray-300'}">${escapeHtml(e.text)}</div>
-                </div>`;
-              }).join('')}
+              ${report.rawEvents.length > 0
+                ? report.rawEvents.map((e) => {
+                    const sevClass = e.severity !== undefined ? `severity-${(e.severityLabel || '').toLowerCase()}` : '';
+                    const typeColor = e.type === 'ARM' ? 'text-green-400' : e.type === 'DISARM' ? 'text-red-400' : e.type === 'MODE' ? 'text-indigo-400' : '';
+                    return `<div class="event-item">
+                      <div class="text-xs ${typeColor || 'text-gray-500'}">${e.type}${e.severityLabel ? ' · ' + e.severityLabel : ''}</div>
+                      <div class="text-sm ${sevClass || 'text-gray-300'}">${escapeHtml(e.text)}</div>
+                    </div>`;
+                  }).join('')
+                : '<p class="text-sm text-gray-500">No events recorded in this log.</p>'
+              }
             </div>
           </div>
         </div>
