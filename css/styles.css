@@ -79,3 +79,102 @@
   border-radius: 0.75rem;
   padding: 1.25rem;
 }
+
+/* ── AI vs Raw Data badges ── */
+.badge-ai {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(99, 102, 241, 0.2);
+  color: #a5b4fc;
+  border: 1px solid rgba(99, 102, 241, 0.4);
+}
+
+.badge-raw {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(75, 85, 99, 0.4);
+  color: #9ca3af;
+  border: 1px solid #4b5563;
+}
+
+/* ── AI structured sections ── */
+.ai-section {
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  background: rgba(17, 24, 39, 0.6);
+  border: 1px solid #374151;
+}
+
+.ai-section-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+  color: #e5e7eb;
+}
+
+/* ── Problem / Fix pairs ── */
+.problem-fix-pair {
+  background: rgba(17, 24, 39, 0.8);
+  border: 1px solid #374151;
+  border-left: 3px solid #f97316;
+  border-radius: 0.375rem;
+  padding: 0.6rem 0.75rem;
+  font-size: 0.8rem;
+}
+
+.problem-label,
+.fix-label {
+  color: #9ca3af;
+  font-weight: 500;
+}
+
+/* ── Raw stream toggle ── */
+.raw-toggle-btn {
+  font-size: 0.8rem;
+  font-weight: 500;
+  padding: 0.45rem 1rem;
+  border-radius: 0.5rem;
+  background: #1f2937;
+  border: 1px solid #374151;
+  color: #9ca3af;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.raw-toggle-btn:hover {
+  background: #374151;
+  color: #e5e7eb;
+}
+
+.raw-stream-panel {
+  background: #111827;
+  border: 1px solid #374151;
+  border-radius: 0.75rem;
+  padding: 1rem;
+  max-height: 28rem;
+  overflow-y: auto;
+}
+
+.raw-event-list .event-item::before {
+  background: #4b5563;
+}
+
+/* ── Altitude chart ── */
+.alt-chart-container {
+  width: 100%;
+  overflow: hidden;
+  border-radius: 0.375rem;
+}

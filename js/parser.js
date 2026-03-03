@@ -62,7 +62,7 @@ const TLogParser = (() => {
       filename: filename || 'unknown.tlog',
       totalBytes: len,
       packets: 0,
-      flightTimeMs: 0,
+      flightTimeMs: null,        // null = inconclusive until arm/disarm found
       firstTimestamp: null,
       lastTimestamp: null,
       maxAltitudeM: 0,
@@ -71,6 +71,8 @@ const TLogParser = (() => {
       batteryEnd: null,
       modes: [],
       events: [],
+      rawEvents: [],             // all STATUSTEXT + MODE + ARM/DISARM for the raw stream
+      altHistory: [],            // { time, alt } sampled for chart
       armed: false,
       armedTime: null,
       disarmedTime: null,
@@ -105,8 +107,15 @@ const TLogParser = (() => {
     }
 
     // Compute derived metrics
-    if (result.firstTimestamp && result.lastTimestamp) {
-      result.flightTimeMs = result.lastTimestamp - result.firstTimestamp;
+    // Prefer arm→disarm window for flight time (ignores bench/idle time)
+    if (result.armedTime !== null && result.disarmedTime !== null) {
+      result.flightTimeMs = result.disarmedTime - result.armedTime;
+    } else if (result.armedTime !== null && result.lastTimestamp !== null) {
+      // Still armed at end of log
+      result.flightTimeMs = result.lastTimestamp - result.armedTime;
+    } else {
+      // No arm event: mark as inconclusive
+      result.flightTimeMs = null;
     }
 
     return result;
@@ -206,18 +215,24 @@ const TLogParser = (() => {
     if (isArmed && !result.armed) {
       result.armed = true;
       result.armedTime = tsMs;
-      result.events.push({ time: tsMs, type: 'ARM', text: 'Vehicle ARMED' });
+      const e = { time: tsMs, type: 'ARM', text: 'Vehicle ARMED' };
+      result.events.push(e);
+      result.rawEvents.push(e);
     } else if (!isArmed && result.armed) {
       result.armed = false;
       result.disarmedTime = tsMs;
-      result.events.push({ time: tsMs, type: 'DISARM', text: 'Vehicle DISARMED' });
+      const e = { time: tsMs, type: 'DISARM', text: 'Vehicle DISARMED' };
+      result.events.push(e);
+      result.rawEvents.push(e);
     }
 
     // Track mode changes
     const lastMode = result.modes.length > 0 ? result.modes[result.modes.length - 1] : null;
     if (!lastMode || lastMode.mode !== modeName) {
       result.modes.push({ time: tsMs, mode: modeName });
-      result.events.push({ time: tsMs, type: 'MODE', text: `Mode → ${modeName}` });
+      const e = { time: tsMs, type: 'MODE', text: `Mode → ${modeName}` };
+      result.events.push(e);
+      result.rawEvents.push(e);
     }
   }
 
@@ -234,12 +249,17 @@ const TLogParser = (() => {
   }
 
   /* ── MsgID 33: GLOBAL_POSITION_INT ── */
-  function decodeGlobalPositionInt(view, start, payloadLen, _tsMs, result) {
+  function decodeGlobalPositionInt(view, start, payloadLen, tsMs, result) {
     if (payloadLen < 20) return;
     const relAltMm = view.getInt32(start + 16, true); // bytes 16-19
     const altM = relAltMm / 1000;
     if (altM > result.maxAltitudeM) {
       result.maxAltitudeM = altM;
+    }
+    // Sample altitude history for chart (every 20th reading to limit size)
+    if (result.altHistory.length === 0 ||
+        tsMs - result.altHistory[result.altHistory.length - 1].time >= 1000) {
+      result.altHistory.push({ time: tsMs, alt: Math.max(0, altM) });
     }
   }
 
@@ -256,7 +276,6 @@ const TLogParser = (() => {
   function decodeStatusText(view, start, payloadLen, tsMs, result) {
     if (payloadLen < 2) return;
     const severity = view.getUint8(start); // byte 0
-    if (severity > 4) return; // Only Warning or worse
 
     // Read null-terminated string from bytes 1..50
     const maxTextLen = Math.min(50, payloadLen - 1);
@@ -268,13 +287,21 @@ const TLogParser = (() => {
     }
 
     const sevLabel = SEVERITY_LABELS[severity] || `Severity ${severity}`;
-    result.events.push({
+    const e = {
       time: tsMs,
       type: 'STATUS',
       severity,
       severityLabel: sevLabel,
       text: text.trim(),
-    });
+    };
+
+    // Raw stream gets every status message
+    result.rawEvents.push(e);
+
+    // Main events list: only Warning (4) or worse for the summary
+    if (severity <= 4) {
+      result.events.push(e);
+    }
   }
 
   /* ── Helpers ── */
