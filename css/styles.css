@@ -1,5 +1,8 @@
 /* Custom styles beyond Tailwind */
 
+/* Fallback for critical Tailwind utilities (in case CDN is blocked) */
+.hidden { display: none !important; }
+
 /* Smooth transitions between views */
 #view-upload, #view-processing, #view-dashboard {
   transition: opacity 0.3s ease;
