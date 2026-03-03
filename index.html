@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TLog Reader — MAVLink Flight Report Generator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen flex flex-col">
+
+  <!-- ─── Header ─── -->
+  <header class="bg-gray-800 border-b border-gray-700 px-6 py-4 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <svg class="w-8 h-8 text-indigo-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round"
+          d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+      </svg>
+      <h1 class="text-xl font-bold tracking-tight">TLog Reader</h1>
+    </div>
+    <button id="btn-api-key" class="text-sm bg-gray-700 hover:bg-gray-600 px-3 py-1.5 rounded-lg transition"
+      title="Set OpenAI API Key">
+      🔑 API Key
+    </button>
+  </header>
+
+  <!-- ─── API Key Modal ─── -->
+  <div id="modal-api-key" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+    <div class="bg-gray-800 rounded-2xl shadow-xl p-6 w-full max-w-md mx-4">
+      <h2 class="text-lg font-semibold mb-2">OpenAI API Key</h2>
+      <p class="text-sm text-gray-400 mb-4">
+        Your key is stored <strong>only</strong> in this browser's
+        <code>localStorage</code> and is never sent anywhere except OpenAI.
+      </p>
+      <input id="input-api-key" type="password" placeholder="sk-..."
+        class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+      <div class="flex justify-end gap-2 mt-4">
+        <button id="btn-cancel-key" class="px-4 py-2 text-sm rounded-lg bg-gray-700 hover:bg-gray-600 transition">Cancel</button>
+        <button id="btn-save-key" class="px-4 py-2 text-sm rounded-lg bg-indigo-600 hover:bg-indigo-500 transition">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── Main Content ─── -->
+  <main class="flex-1 flex flex-col">
+
+    <!-- ── Upload View ── -->
+    <section id="view-upload" class="flex-1 flex items-center justify-center p-6">
+      <div id="drop-zone"
+        class="w-full max-w-2xl border-2 border-dashed border-gray-600 rounded-2xl p-12 text-center cursor-pointer hover:border-indigo-400 transition-colors">
+        <svg class="mx-auto w-16 h-16 text-gray-500 mb-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+        </svg>
+        <p class="text-lg font-medium text-gray-300">Drag &amp; drop your <code>.tlog</code> files here</p>
+        <p class="text-sm text-gray-500 mt-1">or click to browse — up to 20 files</p>
+        <input id="file-input" type="file" accept=".tlog" multiple class="hidden" />
+      </div>
+    </section>
+
+    <!-- ── Processing View ── -->
+    <section id="view-processing" class="hidden flex-1 flex flex-col items-center justify-center p-6 gap-4">
+      <p id="processing-status" class="text-lg font-medium">Parsing flight logs…</p>
+      <div class="w-full max-w-md bg-gray-700 rounded-full h-3 overflow-hidden">
+        <div id="progress-bar" class="bg-indigo-500 h-3 rounded-full transition-all duration-300" style="width:0%"></div>
+      </div>
+      <p id="progress-label" class="text-sm text-gray-400">0 / 0</p>
+    </section>
+
+    <!-- ── Dashboard View ── -->
+    <section id="view-dashboard" class="hidden flex-1 flex flex-col">
+
+      <!-- Tab Bar -->
+      <nav id="tab-bar" class="bg-gray-800 border-b border-gray-700 px-4 flex gap-1 overflow-x-auto">
+        <!-- Tabs injected by JS -->
+      </nav>
+
+      <!-- Tab Content -->
+      <div id="tab-content" class="flex-1 overflow-y-auto p-6">
+        <!-- Panels injected by JS -->
+      </div>
+    </section>
+  </main>
+
+  <!-- ─── Footer ─── -->
+  <footer class="bg-gray-800 border-t border-gray-700 text-center text-xs text-gray-500 py-3">
+    TLog Reader &mdash; 100% client-side &middot; Your data never leaves your browser (except AI calls to OpenAI)
+  </footer>
+
+  <!-- Scripts -->
+  <script src="js/parser.js"></script>
+  <script src="js/ai.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
